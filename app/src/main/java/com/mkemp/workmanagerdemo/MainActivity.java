@@ -3,6 +3,7 @@ package com.mkemp.workmanagerdemo;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.Observer;
@@ -37,7 +38,8 @@ public class MainActivity extends AppCompatActivity
         
         final TextView textView = findViewById(R.id.tv_status);
         
-        (findViewById(R.id.button)).setOnClickListener(new View.OnClickListener() {
+        (findViewById(R.id.button)).setOnClickListener(new View.OnClickListener()
+        {
             @Override
             public void onClick(View view)
             {
@@ -46,11 +48,19 @@ public class MainActivity extends AppCompatActivity
         });
         
         WorkManager.getInstance(this).getWorkInfoByIdLiveData(oneTimeWorkRequest.getId())
-                .observe(this, new Observer<WorkInfo>() {
+                .observe(this, new Observer<WorkInfo>()
+                {
                     @Override
                     public void onChanged(WorkInfo workInfo)
                     {
                         textView.setText(workInfo.getState().name());
+                        
+                        if ( workInfo.getState().isFinished() )
+                        {
+                            Data gotData = workInfo.getOutputData();
+                            String message = gotData.getString(DemoWorker.KEY_WORKER);
+                            Toast.makeText(MainActivity.this, message, Toast.LENGTH_LONG).show();
+                        }
                     }
                 });
     }
